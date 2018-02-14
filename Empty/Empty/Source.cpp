@@ -1,49 +1,82 @@
+#include "Array.h"
 #include <iostream>
-#include <thread>
 
-#define BUFFER_SIZE 4096U
-#define BUFFER_DIMENSIONS 64U
-#define SPACE 32U
-
-void get_input(bool *_arg, unsigned char *_input)
-{
-	while (*_arg)
-	{
-		std::cin >> *_input;
-	}
-}
+int BinarySearch(Vector<int>& , int, int&);
 
 void main()
 {
-	bool running = true;
-	unsigned char input = 0U;
-	unsigned char buffer[BUFFER_SIZE];
-
-	std::thread inputThread(&get_input, &running, &input);
-	inputThread.detach();
-
-	while (running)
+	Vector<int> intlist(2500);
+	
+	for (int i = 0; i < intlist.length; ++i)
 	{
-		for (unsigned int c = 0U; c < BUFFER_DIMENSIONS; ++c)
-		{
-			for (unsigned int i = 0U; i < BUFFER_DIMENSIONS; ++i)
-			{
-				if (c == 64U)
-				{
-					if (i = 64U)
-						buffer[c * i] = 0U;
-					else
-						buffer[c * i] = '\n';
-				}
-				else
-				{
-					buffer[c * i] = 'A';
-				}
-			}
-		}
-		system("CLS");
-		std::cout << buffer;
+		intlist[i] = i * i;
+		printf("%d ", intlist[i]);
+	}
+	intlist.count = intlist.length;
+	
+	int input;
+	
+	std::cout << "\n\nEnter number to find\n";
+	std::cin >> input;
+	
+	int index, cycles;
+
+	index = BinarySearch(intlist, input, cycles);
+	if (index != -1)
+	{
+		std::cout << "Index: " << index << std::endl;
+		std::cout << "Number: " << intlist[index] << std::endl;
+		std::cout << "Iterations: " << cycles << std::endl;
+	}
+	else
+	{
+		std::cout << "Number was not found in the array.\nIterations: " << cycles << std::endl;
 	}
 
 	system("pause");
+	//Error testing
+	for (int i = 0; i < intlist.length; ++i)
+	{
+		index = BinarySearch(intlist, intlist[i], cycles);
+		printf("Index: %d Number: %d Iterations: %d\n", index, intlist[index], cycles);
+	}
+	system("pause");
+}
+
+//Should return -1 if it wasnt found
+int BinarySearch(Vector<int>& _array, int _to_find, int &_out_cycles)
+{
+	float min = 0;
+	float max = _array.count - 1;
+	float mid = (min + max) / 2;
+
+	_out_cycles = 0;
+
+	while (true)
+	{
+		++_out_cycles;
+
+		if (_array[mid] == _to_find)
+		{
+			return mid;
+		}
+		else if (_array[mid] < _to_find)
+		{
+			min = mid;
+			mid = (min + max) / 2;
+			roundf(mid);
+		}
+		else
+		{
+			max = mid;
+			mid = (min + max) / 2;
+			roundf(mid);
+		}
+		if (_out_cycles > 100)
+		{
+			break;
+		}
+	}
+
+	return -1;
 }
