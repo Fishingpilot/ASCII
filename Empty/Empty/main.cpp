@@ -1,76 +1,87 @@
 #include <consoleapi.h>
 #include <chrono>
 #include "Array.h"
-
-#define BUFFER_SIZE 4096U
-#define BUFFER_DIMENSION 64U
+#include "Resources.h"
+#include "Globals.h"
+#include "Object.h"
+#include "gainput\gainput.h"
 
 void main()
 {
-	DWORD bytesWritten;
+	//Create a console buffer
 	HANDLE consoleBuffer = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 	SetConsoleMode(consoleBuffer, ENABLE_INSERT_MODE);
 	//HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
-
+	//Set it to active
 	SetConsoleActiveScreenBuffer(consoleBuffer);
-
+	//Define a few attributes for our buffer
 	SMALL_RECT windowSize = { 0,0,BUFFER_DIMENSION - 1, BUFFER_DIMENSION - 1 };
 	CONSOLE_FONT_INFOEX font = { sizeof(CONSOLE_FONT_INFOEX), 3, COORD{8,8}};
 	CONSOLE_CURSOR_INFO cursor = { 1, FALSE };
-
+	//Set those attributes
 	SetCurrentConsoleFontEx(consoleBuffer, TRUE, &font);
 	SetConsoleScreenBufferSize(consoleBuffer, COORD{ BUFFER_DIMENSION, BUFFER_DIMENSION });
 	SetConsoleWindowInfo(consoleBuffer, TRUE, &windowSize);
 
 	SetConsoleCursorInfo(consoleBuffer, &cursor);
-
-	SetConsoleTextAttribute(consoleBuffer, FOREGROUND_GREEN);
-
+	//The Title of our console
 	SetConsoleTitle("OH HEY WOW");
-	// its 64 x 64
+	//Create a character buffer to use for 'drawing' characters to screen
 	CHAR_INFO buffer[BUFFER_SIZE];
 	SMALL_RECT bufferSize = { 0, 0, BUFFER_DIMENSION, BUFFER_DIMENSION };
+	//Fill it with + characters and random colors
 	for (int y = 0; y < BUFFER_DIMENSION; ++y)
 	{
 		for (int x = 0; x < BUFFER_DIMENSION; ++x)
 		{
-			if (x == BUFFER_DIMENSION - 1)
-			{
-				if (y == BUFFER_DIMENSION - 1)
-					buffer[x + (BUFFER_DIMENSION * y)].Char.AsciiChar = 0;
-				else
-					buffer[x + (BUFFER_DIMENSION * y)].Char.AsciiChar = '\n';
-			}
-			else
-				buffer[x + (BUFFER_DIMENSION * y)].Char.AsciiChar = '.';
+			buffer[x + (BUFFER_DIMENSION * y)].Attributes = y*x;
+			buffer[x + (BUFFER_DIMENSION * y)].Char.AsciiChar = '+';
 		}
 	}
+	//Write it out
 	WriteConsoleOutput(consoleBuffer, buffer, COORD{ BUFFER_DIMENSION,BUFFER_DIMENSION }, COORD{ 0,0 }, &bufferSize);
-	////TESTING
-	//CHAR_INFO test3[25];
-	//for(int i = 0; i < 25; ++i)
-	//{
-	//	test3[i].Attributes = FOREGROUND_BLUE | FOREGROUND_INTENSITY | BACKGROUND_GREEN | BACKGROUND_INTENSITY;
-	//	test3[i].Char.AsciiChar = '0';
-	//}
-	//SMALL_RECT test2 = { 30,30,34,34 };
-	//WriteConsoleOutput(consoleBuffer, test, COORD{ 5,5 }, COORD{ 0,0 }, &test2);
-
+	//Chrono library for getting delta time
 	std::chrono::time_point<std::chrono::high_resolution_clock> curtime, prevtime;
 	std::chrono::high_resolution_clock time;
 	float deltaTime;
 	curtime = time.now();
+	prevtime = curtime;
+	//Resource manager
+	Resource* resource = new Resource(buffer);
+	resource->AddImage("./test.st", Resource::T_ID::WHITE_SQUARE);
+	//Input library
+	//input::InputManager* inputManager = new gainput::InputManager();
+	//putManager->SetDisplaySize(8 * BUFFER_DIMENSION, 8 * BUFFER_DIMENSION);
+	//nst gainput::DeviceId keyboardID = inputManager->CreateDevice<gainput::InputDeviceKeyboard>();
 
-	float letssee = 0.f;
+	//Test object
+	Object testing(COORD{ 32,32 }, Resource::T_ID::WHITE_SQUARE);
 
 	while (true)
 	{
-		prevtime = curtime;
-		float deltaTime = std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(curtime - prevtime).count();
 		curtime = time.now();
+		deltaTime = (std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(curtime - prevtime).count() / 1000.f);
+		prevtime = curtime;
 
-		letssee += deltaTime;
+		//inputManager->Update();
+		//Dostuff here
+		for (int y = 0; y < BUFFER_DIMENSION; ++y)
+		{
+			for (int x = 0; x < BUFFER_DIMENSION; ++x)
+			{
+				buffer[x + (BUFFER_DIMENSION * y)].Attributes = rand() % 15;
+				buffer[x + (BUFFER_DIMENSION * y)].Char.UnicodeChar = rand() % 30000;
+			}
+		}
+
+		testing.Draw(resource);
+
+		//Final draw command
+		WriteConsoleOutput(consoleBuffer, buffer, COORD{ BUFFER_DIMENSION,BUFFER_DIMENSION }, COORD{ 0,0 }, &bufferSize);
 	}
+	//Cleanup
+	delete[] buffer;
+	delete resource;
 
 	system("pause");
 }

@@ -48,7 +48,7 @@ struct Vector
 
 	void Resize()
 	{
-		T* new_vector = new T[length * 2];
+		T* new_vector = new T[length * 2U];
 		for (unsigned int i = 0U; i < length; ++i)
 		{
 			new_vector[i] = vector[i];
