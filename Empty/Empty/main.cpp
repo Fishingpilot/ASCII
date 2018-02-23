@@ -27,7 +27,7 @@ void main()
 	//The Title of our console
 	SetConsoleTitle("OH HEY WOW");
 	//Create a character buffer to use for 'drawing' characters to screen
-	CHAR_INFO buffer[BUFFER_SIZE];
+	CHAR_INFO* buffer = new CHAR_INFO[BUFFER_SIZE];
 	SMALL_RECT bufferSize = { 0, 0, BUFFER_DIMENSION, BUFFER_DIMENSION };
 	//Fill it with + characters and random colors
 	for (int y = 0; y < BUFFER_DIMENSION; ++y)
@@ -65,14 +65,18 @@ void main()
 
 		//inputManager->Update();
 		//Dostuff here
+
+		//This here clears the screen
 		for (int y = 0; y < BUFFER_DIMENSION; ++y)
 		{
 			for (int x = 0; x < BUFFER_DIMENSION; ++x)
 			{
-				buffer[x + (BUFFER_DIMENSION * y)].Attributes = rand() % 15;
-				buffer[x + (BUFFER_DIMENSION * y)].Char.UnicodeChar = rand() % 30000;
+				buffer[x + (BUFFER_DIMENSION * y)].Attributes = y*x;
+				buffer[x + (BUFFER_DIMENSION * y)].Char.UnicodeChar = (char16_t)'+';
 			}
 		}
+
+		testing.Update(deltaTime);
 
 		testing.Draw(resource);
 
