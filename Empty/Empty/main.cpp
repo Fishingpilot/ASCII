@@ -4,7 +4,6 @@
 #include "Resources.h"
 #include "Globals.h"
 #include "Object.h"
-#include "gainput\gainput.h"
 
 void main()
 {
@@ -20,6 +19,7 @@ void main()
 	CONSOLE_CURSOR_INFO cursor = { 1, FALSE };
 	//Set those attributes
 	SetCurrentConsoleFontEx(consoleBuffer, TRUE, &font);
+	SetConsoleWindowInfo(consoleBuffer, TRUE, &windowSize);
 	SetConsoleScreenBufferSize(consoleBuffer, COORD{ BUFFER_DIMENSION, BUFFER_DIMENSION });
 	SetConsoleWindowInfo(consoleBuffer, TRUE, &windowSize);
 
@@ -49,6 +49,7 @@ void main()
 	//Resource manager
 	Resource* resource = new Resource(buffer);
 	resource->AddImage("./test.st", Resource::T_ID::WHITE_SQUARE);
+	resource->AddImage("./test2.st", Resource::T_ID::A_SQUARE);
 	//Input library
 	//input::InputManager* inputManager = new gainput::InputManager();
 	//putManager->SetDisplaySize(8 * BUFFER_DIMENSION, 8 * BUFFER_DIMENSION);
@@ -56,6 +57,7 @@ void main()
 
 	//Test object
 	Object testing(COORD{ 32,32 }, Resource::T_ID::WHITE_SQUARE);
+	Object testing2(COORD{ 32,32 }, Resource::T_ID::A_SQUARE);
 
 	while (true)
 	{
@@ -79,6 +81,7 @@ void main()
 		testing.Update(deltaTime);
 
 		testing.Draw(resource);
+		testing2.Draw(resource);
 
 		//Final draw command
 		WriteConsoleOutput(consoleBuffer, buffer, COORD{ BUFFER_DIMENSION,BUFFER_DIMENSION }, COORD{ 0,0 }, &bufferSize);

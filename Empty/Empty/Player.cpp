@@ -1,5 +1,4 @@
 #include "Player.h"
-#include "gainput\gainput.h"
 
 Player::Player()
 {

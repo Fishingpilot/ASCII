@@ -25,6 +25,7 @@ public:
 	{
 		NOTHING = 0xFFFFFFFF,
 		WHITE_SQUARE = 0,
+		A_SQUARE = 1,
 	};
 private:
 	static Resource* instance;
